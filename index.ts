@@ -3,51 +3,49 @@ import dayjs from 'dayjs'
 import axios from 'axios'
 const env = process.env as any
 const stripe = new Stripe(env.STRIPE_TOKEN)
+const today = dayjs().startOf('day')
+const yesterday = today.add(-1, 'day')
 
-// Note: payouts じゃなくて charges の一覧がほしい
-stripe.payouts.list(
+stripe.charges.list(
   {
-    arrival_date: {
-      gt: `${dayjs()
-        .add(-14, 'day')
-        .startOf('day')
-        .unix()}`,
-      lt: `${dayjs()
-        .startOf('day')
-        .unix()}`
+    created: {
+      gt: `${yesterday.unix()}`,
+      lt: `${today.unix()}`
     }
   },
-  (err, payouts) => {
+  async (err, charges) => {
     if (err) {
       console.error('Error')
     }
-    console.log(payouts.data)
-    axios.post(env.SLACK_ENDPOINT, {
-      attachments: [
-        {
-          color: '#6096F1',
-          title: `${dayjs()
-            .add(-1, 'day')
-            .format('YYYY/MM/DD')}の売上`,
-          title_link: 'https://dashboard.stripe.com/balance/overview',
-          fields: [
-            {
-              title: '決済件数',
-              value: `${payouts.data.length}件`,
-              short: true
-            },
-            {
-              title: '当日総売上',
-              value: `${payouts.data
-                .map(d => d.amount)
-                .reduce((b, a) => b + a, 0)}円`,
-              short: true
-            }
-          ],
-          footer: 'Stripe Bot',
-          footer_icon: 'https://stripe.com/img/v3/home/twitter.png'
-        }
-      ]
-    })
+    try {
+      axios.post(env.SLACK_ENDPOINT, {
+        attachments: [
+          {
+            color: '#6096F1',
+            title: `${yesterday.format('YYYY/MM/DD')}の売上`,
+            title_link: 'https://dashboard.stripe.com/balance/overview',
+            fields: [
+              {
+                title: '決済件数',
+                value: `${charges.data.length}件`,
+                short: true
+              },
+              {
+                title: '当日総売上',
+                value: `${charges.data
+                  .map(d => d.amount)
+                  .reduce((b, a) => b + a, 0)}円`,
+                short: true
+              }
+            ],
+            footer: 'Stripe Bot',
+            footer_icon: 'https://stripe.com/img/v3/home/twitter.png'
+          }
+        ]
+      })
+      console.log('success')
+    } catch (e) {
+      console.error('error')
+    }
   }
 )
