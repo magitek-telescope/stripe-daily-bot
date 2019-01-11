@@ -1,0 +1,26 @@
+version: 2
+jobs:
+  cron:
+    docker:
+      - image: &docker_image circleci/node:latest
+    working_directory: &workspace_directory ~/app
+    steps:
+      - checkout
+      - run: yarn
+      - run: yarn start
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - cron
+  schedule:
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - cron
