@@ -2,6 +2,7 @@
   "name": "stripe-daily-bot",
   "version": "1.0.0",
   "main": "index.js",
+  "private": true,
   "repository": "https://github.com/potato4d/stripe-daily-bot",
   "author": "HANATANI Takuma <mail@potato4d.me>",
   "license": "MIT",
