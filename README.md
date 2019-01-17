@@ -1,5 +1,7 @@
 # Stripe daily bot
 
+[![Image from Gyazo](https://i.gyazo.com/ea44b368eefb948050b04c8bae0c4d14.png)](https://gyazo.com/ea44b368eefb948050b04c8bae0c4d14)
+
 Get Stripe charges and calculate sum -> Notify to Slack
 
 ## How to use
